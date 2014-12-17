@@ -265,9 +265,11 @@ describe("PNG", function() {
   })
 })
 
+// Images from http://www.libpng.org/pub/png/pngsuite.html
 describe('interlace', function () {
     it("should correctly read an indexed color image", function(done) {
-      return png.parseFile(path.join(__dirname, "data/basn0g02.png"), function(err, id) {
+      // return png.parseFile(path.join(__dirname, "data/basn0g02.png"), function(err, id) {
+      return png.parseFile(path.join(__dirname, "data/s01i3p01.png"), function(err, id) {
         assert.isUndefined(err)
         assert.equal(id.width, 32);
         assert.equal(id.height, 32);
