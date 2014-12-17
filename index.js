@@ -435,7 +435,7 @@ exports.parseStream = function(stream, callback) {
     var scanlineCount = 0;
 
     for(i = 0; i !== len; ++i) {
-      console.log(b)
+      console.log('scanline count', scanlineCount);
       if(b === -1) {
         scanlineFilter  = data[i]
         tmp             = currentScanline
@@ -488,11 +488,8 @@ exports.parseStream = function(stream, callback) {
 
       var adam7Pixels = [1, 1, 2, 4, 8, 16, 32];
       var scanlinePixels = adam7Pixels[scanlineCount];
-      console.log(scanlineCount);
-      pngBytesPerScanline =  Math.ceil(
-        scanlinePixels * pngBitDepth * pngSamplesPerPixel / 8
-      )
-      console.log(pngBytesPerScanline);
+      pngBytesPerScanline =
+        scanlinePixels * Math.ceil(pngBitDepth * pngSamplesPerPixel / 8)
       currentScanline     = new Buffer(pngBytesPerScanline)
 
       if(++b === pngBytesPerScanline) {
@@ -591,6 +588,7 @@ exports.parseStream = function(stream, callback) {
           }
         }
 
+        scanlineCount += 1
         b = -1;
       }
     }
