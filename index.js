@@ -77,8 +77,8 @@ exports.parseStream = function(stream, callback) {
       pngAlphaEntries   = 0,
       chunkLength, pngWidth, pngHeight, pngBitDepth, pngDepthMult,
       pngColorType, pngPixels, pngSamplesPerPixel, pngBytesPerPixel,
-      pngBytesPerScanline, pngSamples, currentScanline, priorScanline,
-      scanlineFilter, pngTrailer, pngPalette, pngAlpha, idChannels;
+      pngBytesPerScanline, pngSamples, pngInterlaceMethod, currentScanline,
+      priorScanline, scanlineFilter, pngTrailer, pngPalette, pngAlpha, idChannels;
 
   function error(err) {
     /* FIXME: stream.destroy no longer exists in node 0.10. I can't actually
@@ -245,18 +245,15 @@ exports.parseStream = function(stream, callback) {
             if(buf.readUInt8(11) !== 0)
               return error(new Error("Unsupported filter method."))
 
-            console.log(buf.readUInt8(12))
-            if(buf.readUInt8(12) !== 0)
-              return error(new Error("Unsupported interlace method."))
-
-            i           += chunkLength - off
-            state        = 8
-            off          = 0
-            pngWidth     = buf.readUInt32BE(0)
-            pngHeight    = buf.readUInt32BE(4)
-            pngBitDepth  = buf.readUInt8(8)
-            pngDepthMult = 255 / ((1 << pngBitDepth) - 1)
-            pngColorType = buf.readUInt8(9)
+            i                 += chunkLength - off
+            state              = 8
+            off                = 0
+            pngWidth           = buf.readUInt32BE(0)
+            pngHeight          = buf.readUInt32BE(4)
+            pngBitDepth        = buf.readUInt8(8)
+            pngDepthMult       = 255 / ((1 << pngBitDepth) - 1)
+            pngColorType       = buf.readUInt8(9)
+            pngInterlaceMethod = buf.readUInt8(12)
 
             switch(pngColorType) {
               case 0:
@@ -485,6 +482,7 @@ exports.parseStream = function(stream, callback) {
         }
 
       if(++b === pngBytesPerScanline) {
+        console.log('got one')
         /* One scanline too many? */
         if(p === pngPixels.length)
           return error(new Error("Too much pixel data! (Corrupt PNG?)"))

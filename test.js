@@ -268,12 +268,12 @@ describe("PNG", function() {
 // Images from http://www.libpng.org/pub/png/pngsuite.html
 describe('interlace', function () {
     it("should correctly read an indexed color image", function(done) {
-      // return png.parseFile(path.join(__dirname, "data/basn0g02.png"), function(err, id) {
-      return png.parseFile(path.join(__dirname, "data/s01n3p01.png"), function(err, id) {
+      // return png.parseFile(path.join(__dirname, "data/s08n3p02.png"), function(err, id) {
+      return png.parseFile(path.join(__dirname, "data/s08i3p02.png"), function(err, id) {
         assert.isUndefined(err)
-        assert.equal(id.width, 1);
-        assert.equal(id.height, 1);
-        assert.equal(id.getPixel(0, 0), 0x0000FFFF);
+        assert.equal(id.width, 8);
+        assert.equal(id.height, 8);
+        // assert.equal(id.getPixel(0, 0), 0x0000FFFF);
         // assert.equal(id.channels, 3);
         // assert.equal(id.data.length, 16 * 16 * 3);
         // assert.equal(id.trailer.length, 0);
