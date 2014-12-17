@@ -245,6 +245,7 @@ exports.parseStream = function(stream, callback) {
             if(buf.readUInt8(11) !== 0)
               return error(new Error("Unsupported filter method."))
 
+            console.log(buf.readUInt8(12))
             if(buf.readUInt8(12) !== 0)
               return error(new Error("Unsupported interlace method."))
 
