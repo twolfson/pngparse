@@ -264,3 +264,37 @@ describe("PNG", function() {
     })
   })
 })
+
+describe('interlace', function () {
+    it("should correctly read an indexed color image", function(done) {
+      return png.parseFile(path.join(__dirname, "data/basn0g02.png"), function(err, id) {
+        assert.isUndefined(err)
+        assert.equal(id.width, 32);
+        assert.equal(id.height, 32);
+        // assert.equal(id.channels, 3);
+        // assert.equal(id.data.length, 16 * 16 * 3);
+        // assert.equal(id.trailer.length, 0);
+
+        // var y = 16,
+        //     x
+
+        // while(y--) {
+        //   x = 16
+        //   while(x--)
+        //     if(x + y < 8)
+        //       assert.equal(id.getPixel(x, y), 0xFF0000FF)
+
+        //     else if(x + y < 16)
+        //       assert.equal(id.getPixel(x, y), 0x00FF00FF)
+
+        //     else if(x + y < 24)
+        //       assert.equal(id.getPixel(x, y), 0x0000FFFF)
+
+        //     else
+        //       assert.equal(id.getPixel(x, y), 0x000000FF)
+        // }
+
+        done()
+      })
+    })
+});
