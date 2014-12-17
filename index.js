@@ -345,6 +345,7 @@ exports.parseStream = function(stream, callback) {
         case 5: /* IDAT */
           /* If the amount available is less than the amount remaining, then
            * feed as much as we can to the inflator. */
+          console.log(chunkLength)
           if(len - i < chunkLength - off) {
             /* FIXME: Do I need to be smart and check the return value? */
             inflate.write(data.slice(i))
@@ -431,6 +432,7 @@ exports.parseStream = function(stream, callback) {
         i, tmp, x, j, k
 
     for(i = 0; i !== len; ++i) {
+      console.log(b)
       if(b === -1) {
         scanlineFilter  = data[i]
         tmp             = currentScanline
