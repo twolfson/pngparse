@@ -431,6 +431,9 @@ exports.parseStream = function(stream, callback) {
     var len = data.length,
         i, tmp, x, j, k
 
+    // TODO: This should probably be defined in higher scope
+    var scanlineCount = 0;
+
     for(i = 0; i !== len; ++i) {
       console.log(b)
       if(b === -1) {
@@ -482,6 +485,15 @@ exports.parseStream = function(stream, callback) {
               new Error("Unsupported scanline filter: " + scanlineFilter)
             )
         }
+
+      var adam7Pixels = [1, 1, 2, 4, 8, 16, 32];
+      var scanlinePixels = adam7Pixels[scanlineCount];
+      console.log(scanlineCount);
+      pngBytesPerScanline =  Math.ceil(
+        scanlinePixels * pngBitDepth * pngSamplesPerPixel / 8
+      )
+      console.log(pngBytesPerScanline);
+      currentScanline     = new Buffer(pngBytesPerScanline)
 
       if(++b === pngBytesPerScanline) {
         console.log('got one')
