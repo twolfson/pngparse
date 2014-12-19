@@ -75,7 +75,7 @@ exports.parseStream = function(stream, callback) {
       p                 = 0,
       pngPaletteEntries = 0,
       pngAlphaEntries   = 0,
-      pngInterlaceCount = 0,
+      scanlineCount = 0,
       chunkLength, pngWidth, pngHeight, pngBitDepth, pngDepthMult,
       pngColorType, pngPixels, pngSamplesPerPixel, pngBytesPerPixel,
       scanlineBytes, pngSamples, pngInterlaceMethod, currentScanline,
@@ -429,6 +429,10 @@ exports.parseStream = function(stream, callback) {
       if(b === -1) {
         // Set up variables to default against normal images
         var pixelCount = pngWidth
+        var xstart = 0
+        var ystart = scanlineCount
+        var xstep = 1
+        var ystep = pngHeight
 
         // If we are in an interlaced image, treat things differently
         if (pngInterlaceMethod === 1) {
@@ -455,9 +459,14 @@ exports.parseStream = function(stream, callback) {
             xstart: 0, ystart: 1,
             xstep: 1, ystep: 2
           }];
-          var adam7Step = adam7[pngInterlaceCount];
+          var adam7Step = adam7[scanlineCount];
+          // TODO: Should we assert that we are under the scanline count of 8?
           pixelCount = Math.ceil((pngWidth - adam7Step.xstart) / adam7Step.xstep) *
             Math.ceil((pngHeight - adam7Step.ystart) / adam7Step.ystep)
+          xstart = adam7Step.xstart;
+          ystart = adam7Step.ystart;
+          xstep = adam7Step.xstep;
+          ystep = adam7Step.ystep;
         }
 
         scanlineFilter  = data[i]
@@ -520,7 +529,8 @@ exports.parseStream = function(stream, callback) {
 
         /* We have now read a complete scanline, so unfilter it and write it
          * into the pixel array. */
-        for(j = 0, x = 0; x !== pixelCount; ++x) {
+        // TODO: Declare `y` also prob pixel count, pixel index
+        for(j = 0, pixelIndex = 0, x = xstart + (ystart * pngWidth), y = ystart; pixelIndex !== pixelCount; ++pixelIndex) {
           /* Read all of the samples into the sample buffer. */
           for(k = 0; k !== pngSamplesPerPixel; ++j, ++k)
             switch(pngBitDepth) {
@@ -606,9 +616,17 @@ exports.parseStream = function(stream, callback) {
               pngPixels[p++] = pngSamples[3] * pngDepthMult;
               break;
           }
+
+          x += xstep
+          if (x >= pngWidth) {
+            y += ystep
+            x = xstart + y * pngWidth
+
+            // TODO: Handle if y >= pngHeight (althought not on last row but maybe next check at start)
+          }
         }
 
-        pngInterlaceCount += 1;
+        scanlineCount += 1;
         b = -1;
       }
     }
