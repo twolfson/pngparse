@@ -297,7 +297,6 @@ exports.parseStream = function(stream, callback) {
             )
             pngSamples          = new Buffer(pngSamplesPerPixel)
             currentScanline     = new Buffer(pngBytesPerScanline)
-            priorScanline       = new Buffer(pngBytesPerScanline)
             currentScanline.fill(0)
           }
           break
@@ -433,9 +432,8 @@ exports.parseStream = function(stream, callback) {
     for(i = 0; i !== len; ++i) {
       if(b === -1) {
         scanlineFilter  = data[i]
-        tmp             = currentScanline
-        currentScanline = priorScanline
-        priorScanline   = tmp
+        priorScanline   = currentScanline
+        currentScanline = new Buffer(pngBytesPerScanline)
       }
 
       else
