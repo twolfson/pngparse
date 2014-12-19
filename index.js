@@ -521,7 +521,7 @@ exports.parseStream = function(stream, callback) {
             }
 
           /* Write the pixel based off of the samples so collected. */
-          var z = pixelsWritten
+          var z = (x + y * pngWidth) * idChannels
           switch(pngColorType) {
             case 0:
               pngPixels[z] = pngSamples[0] * pngDepthMult;
