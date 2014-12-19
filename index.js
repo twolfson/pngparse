@@ -505,7 +505,7 @@ exports.parseStream = function(stream, callback) {
 
         /* We have now read a complete scanline, so unfilter it and write it
          * into the pixel array. */
-        for(j = 0, x = 0; x !== pngWidth; ++x) {
+        for(j = 0, x = 0; x !== scanlinePixels; ++x) {
           /* Read all of the samples into the sample buffer. */
           for(k = 0; k !== pngSamplesPerPixel; ++j, ++k)
             switch(pngBitDepth) {
