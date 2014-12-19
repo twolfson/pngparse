@@ -547,8 +547,9 @@ exports.parseStream = function(stream, callback) {
                   break;
 
                 case 2:
-                  pngPixels[pixelsWritten++] = pngPalette[pngSamples[0] * 3];
-                  pngPixels[pixelsWritten++] =
+                  pngPixels[pixelsWritten] = pngPalette[pngSamples[0] * 3];
+                  pixelsWritten += 1
+                  pngPixels[pixelsWritten] =
                     pngSamples[0] < pngAlphaEntries ?
                       pngAlpha[pngSamples[0]] :
                       255;
@@ -565,13 +566,17 @@ exports.parseStream = function(stream, callback) {
                   break;
 
                 case 4:
-                  pngPixels[pixelsWritten++] = pngPalette[pngSamples[0] * 3 + 0];
-                  pngPixels[pixelsWritten++] = pngPalette[pngSamples[0] * 3 + 1];
-                  pngPixels[pixelsWritten++] = pngPalette[pngSamples[0] * 3 + 2];
-                  pngPixels[pixelsWritten++] =
+                  pngPixels[pixelsWritten] = pngPalette[pngSamples[0] * 3 + 0];
+                  pixelsWritten += 1
+                  pngPixels[pixelsWritten] = pngPalette[pngSamples[0] * 3 + 1];
+                  pixelsWritten += 1
+                  pngPixels[pixelsWritten] = pngPalette[pngSamples[0] * 3 + 2];
+                  pixelsWritten += 1
+                  pngPixels[pixelsWritten] =
                     pngSamples[0] < pngAlphaEntries ?
                       pngAlpha[pngSamples[0]] :
                       255;
+                  pixelsWritten += 1
                   break;
               }
               break;
