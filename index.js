@@ -429,7 +429,7 @@ exports.parseStream = function(stream, callback) {
     for(i = 0; i !== len; ++i) {
       if(b === -1) {
         // Set up variables to default against normal images
-        var pixelCount = pngWidth
+        var scanlinePixels = pngWidth
         var xstart = 0
         var ystart = scanlineIndex
         var xstep = 1
@@ -462,7 +462,7 @@ exports.parseStream = function(stream, callback) {
           }];
           var adam7Step = adam7[scanlineIndex];
           // TODO: Should we assert that we are under the scanline count of 8?
-          pixelCount = Math.ceil((pngWidth - adam7Step.xstart) / adam7Step.xstep) *
+          scanlinePixels = Math.ceil((pngWidth - adam7Step.xstart) / adam7Step.xstep) *
             Math.ceil((pngHeight - adam7Step.ystart) / adam7Step.ystep)
           xstart = adam7Step.xstart;
           ystart = adam7Step.ystart;
@@ -472,9 +472,9 @@ exports.parseStream = function(stream, callback) {
 
         scanlineFilter  = data[i]
         scanlineBytes = Math.ceil(
-          pixelCount * pngBitDepth * pngSamplesPerPixel / 8
+          scanlinePixels * pngBitDepth * pngSamplesPerPixel / 8
         )
-        // console.log(pixelCount);
+        // console.log(scanlinePixels);
         priorScanline   = currentScanline
         // TODO: Restore optimization that reuses previous buffer as new buffer for normal images
         currentScanline = new Buffer(scanlineBytes)
@@ -523,7 +523,6 @@ exports.parseStream = function(stream, callback) {
             )
         }
 
-      var scanlinePixels = pngWidth
       if(++b === scanlineBytes) {
         /* One scanline too many? */
         if(pixelsWritten === pngPixels.length)
