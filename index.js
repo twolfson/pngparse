@@ -532,6 +532,7 @@ exports.parseStream = function(stream, callback) {
         // TODO: Declare `y` also prob pixel count, pixel index
         for(j = 0, pixelIndex = 0, x = xstart + (ystart * pngWidth), y = ystart; pixelIndex !== pixelCount; ++pixelIndex) {
           /* Read all of the samples into the sample buffer. */
+          console.log(x)
           for(k = 0; k !== pngSamplesPerPixel; ++j, ++k)
             switch(pngBitDepth) {
               case 1:
