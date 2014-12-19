@@ -71,8 +71,8 @@ exports.parseStream = function(stream, callback) {
       off               = 0,
       buf               = new Buffer(13),
       waiting           = 2,
-      b                 = -1,
-      p                 = 0,
+      byteIndex         = -1,
+      pixelsWritten     = 0,
       pngPaletteEntries = 0,
       pngAlphaEntries   = 0,
       scanlineCount = 0,
@@ -126,7 +126,7 @@ exports.parseStream = function(stream, callback) {
     if(inflate.destroy)
       inflate.destroy()
 
-    if(p !== pngPixels.length)
+    if(pixelsWritten !== pngPixels.length)
       return error(new Error("Too little pixel data! (Corrupt PNG?)"))
 
     return end()
@@ -426,7 +426,7 @@ exports.parseStream = function(stream, callback) {
         i, tmp, x, j, k
 
     for(i = 0; i !== len; ++i) {
-      if(b === -1) {
+      if(byteIndex === -1) {
         // Set up variables to default against normal images
         var pixelCount = pngWidth
         var xstart = 0
@@ -482,36 +482,36 @@ exports.parseStream = function(stream, callback) {
       else
         switch(scanlineFilter) {
           case 0:
-            currentScanline[b] = data[i]
+            currentScanline[byteIndex] = data[i]
             break
 
           case 1:
-            currentScanline[b] =
-              b < pngBytesPerPixel ?
+            currentScanline[byteIndex] =
+              byteIndex < pngBytesPerPixel ?
                 data[i] :
-                (data[i] + currentScanline[b - pngBytesPerPixel]) & 255
+                (data[i] + currentScanline[byteIndex - pngBytesPerPixel]) & 255
             break
 
           case 2:
-            currentScanline[b] = (data[i] + priorScanline[b]) & 255
+            currentScanline[byteIndex] = (data[i] + priorScanline[byteIndex]) & 255
             break
 
           case 3:
-            currentScanline[b] = (data[i] + ((
-              b < pngBytesPerPixel ?
-                priorScanline[b] :
-                currentScanline[b - pngBytesPerPixel] + priorScanline[b]
+            currentScanline[byteIndex] = (data[i] + ((
+              byteIndex < pngBytesPerPixel ?
+                priorScanline[byteIndex] :
+                currentScanline[byteIndex - pngBytesPerPixel] + priorScanline[byteIndex]
             ) >>> 1)) & 255
             break
 
           case 4:
-            currentScanline[b] = (data[i] + (
-              b < pngBytesPerPixel ?
-                priorScanline[b] :
+            currentScanline[byteIndex] = (data[i] + (
+              byteIndex < pngBytesPerPixel ?
+                priorScanline[byteIndex] :
                 paeth(
-                  currentScanline[b - pngBytesPerPixel],
-                  priorScanline[b],
-                  priorScanline[b - pngBytesPerPixel]
+                  currentScanline[byteIndex - pngBytesPerPixel],
+                  priorScanline[byteIndex],
+                  priorScanline[byteIndex - pngBytesPerPixel]
                 )
             )) & 255
             break
@@ -522,9 +522,9 @@ exports.parseStream = function(stream, callback) {
             )
         }
 
-      if(++b === scanlineBytes) {
+      if(++byteIndex === scanlineBytes) {
         /* One scanline too many? */
-        if(p === pngPixels.length)
+        if(pixelsWritten === pngPixels.length)
           return error(new Error("Too much pixel data! (Corrupt PNG?)"))
 
         /* We have now read a complete scanline, so unfilter it and write it
@@ -561,14 +561,14 @@ exports.parseStream = function(stream, callback) {
           switch(pngColorType) {
             case 0:
               pngPixels[writeIndex] = pngSamples[0] * pngDepthMult;
-              p += 1
+              pixelsWritten += 1
               break;
 
             case 2:
               pngPixels[writeIndex + 0] = pngSamples[0] * pngDepthMult;
               pngPixels[writeIndex + 1] = pngSamples[1] * pngDepthMult;
               pngPixels[writeIndex + 2] = pngSamples[2] * pngDepthMult;
-              p += 3
+              pixelsWritten += 3
               break;
 
             case 3:
@@ -578,7 +578,7 @@ exports.parseStream = function(stream, callback) {
               switch(idChannels) {
                 case 1:
                   pngPixels[writeIndex] = pngPalette[pngSamples[0] * 3];
-                  p += 1
+                  pixelsWritten += 1
                   break;
 
                 case 2:
@@ -587,14 +587,14 @@ exports.parseStream = function(stream, callback) {
                     pngSamples[0] < pngAlphaEntries ?
                       pngAlpha[pngSamples[0]] :
                       255;
-                  p += 2
+                  pixelsWritten += 2
                   break;
 
                 case 3:
                   pngPixels[writeIndex + 0] = pngPalette[pngSamples[0] * 3 + 0];
                   pngPixels[writeIndex + 1] = pngPalette[pngSamples[0] * 3 + 1];
                   pngPixels[writeIndex + 2] = pngPalette[pngSamples[0] * 3 + 2];
-                  p += 3
+                  pixelsWritten += 3
                   break;
 
                 case 4:
@@ -605,7 +605,7 @@ exports.parseStream = function(stream, callback) {
                     pngSamples[0] < pngAlphaEntries ?
                       pngAlpha[pngSamples[0]] :
                       255;
-                  p += 4
+                  pixelsWritten += 4
                   break;
               }
               break;
@@ -613,7 +613,7 @@ exports.parseStream = function(stream, callback) {
             case 4:
               pngPixels[writeIndex + 0] = pngSamples[0] * pngDepthMult;
               pngPixels[writeIndex + 1] = pngSamples[1] * pngDepthMult;
-              p += 2
+              pixelsWritten += 2
               break;
 
             case 6:
@@ -621,7 +621,7 @@ exports.parseStream = function(stream, callback) {
               pngPixels[writeIndex + 1] = pngSamples[1] * pngDepthMult;
               pngPixels[writeIndex + 2] = pngSamples[2] * pngDepthMult;
               pngPixels[writeIndex + 3] = pngSamples[3] * pngDepthMult;
-              p += 4
+              pixelsWritten += 4
               break;
           }
 
@@ -637,7 +637,7 @@ exports.parseStream = function(stream, callback) {
         }
 
         scanlineCount += 1;
-        b = -1;
+        byteIndex = -1;
       }
     }
   })
