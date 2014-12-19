@@ -432,7 +432,7 @@ exports.parseStream = function(stream, callback) {
         var xstart = 0
         var ystart = scanlineCount
         var xstep = 1
-        var ystep = pngHeight
+        var ystep = 1
 
         // If we are in an interlaced image, treat things differently
         if (pngInterlaceMethod === 1) {
@@ -532,6 +532,7 @@ exports.parseStream = function(stream, callback) {
         // TODO: Declare `y` also prob pixel count, pixel index
         for(j = 0, pixelIndex = 0, x = xstart + (ystart * pngWidth), y = ystart; pixelIndex !== pixelCount; ++pixelIndex) {
           /* Read all of the samples into the sample buffer. */
+          console.log(p)
           for(k = 0; k !== pngSamplesPerPixel; ++j, ++k)
             switch(pngBitDepth) {
               case 1:
