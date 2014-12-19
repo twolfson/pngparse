@@ -345,7 +345,6 @@ exports.parseStream = function(stream, callback) {
         case 5: /* IDAT */
           /* If the amount available is less than the amount remaining, then
            * feed as much as we can to the inflator. */
-          console.log(chunkLength)
           if(len - i < chunkLength - off) {
             /* FIXME: Do I need to be smart and check the return value? */
             inflate.write(data.slice(i))
@@ -431,9 +430,6 @@ exports.parseStream = function(stream, callback) {
     var len = data.length,
         i, tmp, x, j, k
 
-    // TODO: This should probably be defined in higher scope
-    var scanlineCount = 0;
-
     for(i = 0; i !== len; ++i) {
       if(b === -1) {
         scanlineFilter  = data[i]
@@ -485,29 +481,14 @@ exports.parseStream = function(stream, callback) {
             )
         }
 
-      // TODO: Come back to me
-      // https://github.com/drj11/pypng/blob/1739028ef55c93ad41312a1d3b9133a720479094/code/png.py#L939-L957
-      var adam7Pixels = [1, 1, 2, 4, 8, 16, 32];
-      var scanlinePixels = adam7Pixels[scanlineCount];
-      // console.log('pngBitDepth', pngBitDepth);
-      // console.log('pngSamplesPerPixel', pngSamplesPerPixel);
-      pngBytesPerScanline =
-        scanlinePixels * Math.ceil(pngBitDepth * pngSamplesPerPixel / 8)
-      currentScanline     = new Buffer(pngBytesPerScanline)
-      console.log('scanlineCount', scanlineCount);
-      console.log('scanlinePixels', scanlinePixels);
-      console.log('b', b);
-      console.log('pngBytesPerScanline', pngBytesPerScanline);
-
       if(++b === pngBytesPerScanline) {
-        console.log('INTERPRETTING SCANLINE')
         /* One scanline too many? */
         if(p === pngPixels.length)
           return error(new Error("Too much pixel data! (Corrupt PNG?)"))
 
         /* We have now read a complete scanline, so unfilter it and write it
          * into the pixel array. */
-        for(j = 0, x = 0; x !== scanlinePixels; ++x) {
+        for(j = 0, x = 0; x !== pngWidth; ++x) {
           /* Read all of the samples into the sample buffer. */
           for(k = 0; k !== pngSamplesPerPixel; ++j, ++k)
             switch(pngBitDepth) {
@@ -595,7 +576,6 @@ exports.parseStream = function(stream, callback) {
           }
         }
 
-        scanlineCount += 1
         b = -1;
       }
     }
