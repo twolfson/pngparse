@@ -78,7 +78,7 @@ exports.parseStream = function(stream, callback) {
       pngInterlaceCount = 0,
       chunkLength, pngWidth, pngHeight, pngBitDepth, pngDepthMult,
       pngColorType, pngPixels, pngSamplesPerPixel, pngBytesPerPixel,
-      pngBytesPerScanline, pngSamples, pngInterlaceMethod, currentScanline,
+      scanlineBytes, pngSamples, pngInterlaceMethod, currentScanline,
       priorScanline, scanlineFilter, pngTrailer, pngPalette, pngAlpha, idChannels;
 
   function error(err) {
@@ -461,13 +461,13 @@ exports.parseStream = function(stream, callback) {
         }
 
         scanlineFilter  = data[i]
-        pngBytesPerScanline = Math.ceil(
+        scanlineBytes = Math.ceil(
           pixelCount * pngBitDepth * pngSamplesPerPixel / 8
         )
         console.log(pixelCount);
         priorScanline   = currentScanline
         // TODO: Restore optimization that reuses previous buffer as new buffer for normal images
-        currentScanline = new Buffer(pngBytesPerScanline)
+        currentScanline = new Buffer(scanlineBytes)
       }
 
       else
@@ -513,7 +513,7 @@ exports.parseStream = function(stream, callback) {
             )
         }
 
-      if(++b === pngBytesPerScanline) {
+      if(++b === scanlineBytes) {
         /* One scanline too many? */
         if(p === pngPixels.length)
           return error(new Error("Too much pixel data! (Corrupt PNG?)"))
