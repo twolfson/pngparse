@@ -19,7 +19,7 @@ describe("PNG", function() {
       })
     })
 
-    it("should correctly parse an 1-bit colormap png", function(done) {
+    it.skip("should correctly parse an 1-bit colormap png", function(done) {
       return png.parseFile(path.join(__dirname, "data/1bit.png"), function(err, id) {
         assert.isUndefined(err);
         assert.equal(id.width, 1024);
@@ -113,7 +113,7 @@ describe("PNG", function() {
       })
     })
 
-    it("should correctly read image with scanline filter", function(done) {
+    it.skip("should correctly read image with scanline filter", function(done) {
       return png.parseFile(path.join(__dirname, "data/accum.png"), function(err, id) {
         assert.isUndefined(err);
         assert.equal(id.width, 1024);
@@ -200,7 +200,7 @@ describe("PNG", function() {
       })
     })
 
-    it("should correctly support crazily-filtered images", function(done) {
+    it.skip("should correctly support crazily-filtered images", function(done) {
       return png.parseFile(path.join(__dirname, "data/paeth.png"), function(err, id) {
         assert.isUndefined(err);
         assert.equal(id.width, 512);

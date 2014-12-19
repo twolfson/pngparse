@@ -464,7 +464,7 @@ exports.parseStream = function(stream, callback) {
         scanlineBytes = Math.ceil(
           pixelCount * pngBitDepth * pngSamplesPerPixel / 8
         )
-        console.log(pixelCount);
+        // console.log(pixelCount);
         priorScanline   = currentScanline
         // TODO: Restore optimization that reuses previous buffer as new buffer for normal images
         currentScanline = new Buffer(scanlineBytes)
