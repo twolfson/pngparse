@@ -530,9 +530,10 @@ exports.parseStream = function(stream, callback) {
         /* We have now read a complete scanline, so unfilter it and write it
          * into the pixel array. */
         // TODO: Declare `y` also prob pixel count, pixel index
+        console.log( 'x', xstart + (ystart * pngWidth), 'y', ystart)
         for(j = 0, pixelIndex = 0, x = xstart + (ystart * pngWidth), y = ystart; pixelIndex !== pixelCount; ++pixelIndex) {
           /* Read all of the samples into the sample buffer. */
-          console.log(p)
+          console.log('fooor', x, p)
           for(k = 0; k !== pngSamplesPerPixel; ++j, ++k)
             switch(pngBitDepth) {
               case 1:
@@ -561,13 +562,15 @@ exports.parseStream = function(stream, callback) {
           /* Write the pixel based off of the samples so collected. */
           switch(pngColorType) {
             case 0:
-              pngPixels[p++] = pngSamples[0] * pngDepthMult;
+              pngPixels[x] = pngSamples[0] * pngDepthMult;
+              p += 1
               break;
 
             case 2:
-              pngPixels[p++] = pngSamples[0] * pngDepthMult;
-              pngPixels[p++] = pngSamples[1] * pngDepthMult;
-              pngPixels[p++] = pngSamples[2] * pngDepthMult;
+              pngPixels[x + 0] = pngSamples[0] * pngDepthMult;
+              pngPixels[x + 1] = pngSamples[1] * pngDepthMult;
+              pngPixels[x + 2] = pngSamples[2] * pngDepthMult;
+              p += 3
               break;
 
             case 3:
@@ -576,52 +579,61 @@ exports.parseStream = function(stream, callback) {
 
               switch(idChannels) {
                 case 1:
-                  pngPixels[p++] = pngPalette[pngSamples[0] * 3];
+                  pngPixels[x] = pngPalette[pngSamples[0] * 3];
+                  p += 1
                   break;
 
                 case 2:
-                  pngPixels[p++] = pngPalette[pngSamples[0] * 3];
-                  pngPixels[p++] =
+                  pngPixels[x + 0] = pngPalette[pngSamples[0] * 3];
+                  pngPixels[x + 1] =
                     pngSamples[0] < pngAlphaEntries ?
                       pngAlpha[pngSamples[0]] :
                       255;
+                  p += 2
                   break;
 
                 case 3:
-                  pngPixels[p++] = pngPalette[pngSamples[0] * 3 + 0];
-                  pngPixels[p++] = pngPalette[pngSamples[0] * 3 + 1];
-                  pngPixels[p++] = pngPalette[pngSamples[0] * 3 + 2];
+                  pngPixels[x + 0] = pngPalette[pngSamples[0] * 3 + 0];
+                  pngPixels[x + 1] = pngPalette[pngSamples[0] * 3 + 1];
+                  pngPixels[x + 2] = pngPalette[pngSamples[0] * 3 + 2];
+                  p += 3
                   break;
 
                 case 4:
-                  pngPixels[p++] = pngPalette[pngSamples[0] * 3 + 0];
-                  pngPixels[p++] = pngPalette[pngSamples[0] * 3 + 1];
-                  pngPixels[p++] = pngPalette[pngSamples[0] * 3 + 2];
-                  pngPixels[p++] =
+                  pngPixels[x + 0] = pngPalette[pngSamples[0] * 3 + 0];
+                  pngPixels[x + 1] = pngPalette[pngSamples[0] * 3 + 1];
+                  pngPixels[x + 2] = pngPalette[pngSamples[0] * 3 + 2];
+                  pngPixels[x + 3] =
                     pngSamples[0] < pngAlphaEntries ?
                       pngAlpha[pngSamples[0]] :
                       255;
+                  p += 4
                   break;
               }
               break;
 
             case 4:
-              pngPixels[p++] = pngSamples[0] * pngDepthMult;
-              pngPixels[p++] = pngSamples[1] * pngDepthMult;
+              pngPixels[x + 0] = pngSamples[0] * pngDepthMult;
+              pngPixels[x + 1] = pngSamples[1] * pngDepthMult;
+              p += 2
               break;
 
             case 6:
-              pngPixels[p++] = pngSamples[0] * pngDepthMult;
-              pngPixels[p++] = pngSamples[1] * pngDepthMult;
-              pngPixels[p++] = pngSamples[2] * pngDepthMult;
-              pngPixels[p++] = pngSamples[3] * pngDepthMult;
+              pngPixels[x + 0] = pngSamples[0] * pngDepthMult;
+              pngPixels[x + 1] = pngSamples[1] * pngDepthMult;
+              pngPixels[x + 2] = pngSamples[2] * pngDepthMult;
+              pngPixels[x + 3] = pngSamples[3] * pngDepthMult;
+              p += 4
               break;
           }
 
           x += xstep
-          if (x >= pngWidth) {
+          console.log('x', x, 'pngWidth', pngWidth)
+          if (x >= pngWidth * 4) {
+            // console.log(xstart, y, ystep)
             y += ystep
-            x = xstart + y * pngWidth
+            x = xstart + (y * pngWidth)
+            console.log('wat', x, p)
 
             // TODO: Handle if y >= pngHeight (althought not on last row but maybe next check at start)
           }
