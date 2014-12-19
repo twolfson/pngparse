@@ -76,6 +76,7 @@ exports.parseStream = function(stream, callback) {
       pixelsWritten                 = 0,
       pngPaletteEntries = 0,
       pngAlphaEntries   = 0,
+      scanlineIndex   = 0,
       chunkLength, pngWidth, pngHeight, pngBitDepth, pngDepthMult,
       pngColorType, pngPixels, pngSamplesPerPixel, pngBytesPerPixel,
       pngBytesPerScanline, pngSamples, currentScanline, priorScanline,
@@ -491,7 +492,8 @@ exports.parseStream = function(stream, callback) {
 
         /* We have now read a complete scanline, so unfilter it and write it
          * into the pixel array. */
-        for(j = 0, x = 0; x !== pngWidth; ++x) {
+        var y;
+        for(j = 0, x = 0, y = scanlineIndex; x !== pngWidth; ++x) {
           /* Read all of the samples into the sample buffer. */
           for(k = 0; k !== pngSamplesPerPixel; ++j, ++k)
             switch(pngBitDepth) {
@@ -579,6 +581,7 @@ exports.parseStream = function(stream, callback) {
           }
         }
 
+        scanlineIndex += 1
         b = -1;
       }
     }
