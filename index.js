@@ -456,14 +456,15 @@ exports.parseStream = function(stream, callback) {
             xstep: 1, ystep: 2
           }];
           var adam7Step = adam7[pngInterlaceCount];
-          pixelCount = Math.floor((pngWidth - adam7Step.xstart) / adam7Step.xstep) *
-            Math.floor((pngHeight - adam7Step.ystart) / adam7Step.ystep) *
+          pixelCount = Math.ceil((pngWidth - adam7Step.xstart) / adam7Step.xstep) *
+            Math.ceil((pngHeight - adam7Step.ystart) / adam7Step.ystep)
         }
 
         scanlineFilter  = data[i]
         pngBytesPerScanline = Math.ceil(
           pixelCount * pngBitDepth * pngSamplesPerPixel / 8
         )
+        console.log(pixelCount);
         priorScanline   = currentScanline
         // TODO: Restore optimization that reuses previous buffer as new buffer for normal images
         currentScanline = new Buffer(pngBytesPerScanline)
@@ -607,6 +608,7 @@ exports.parseStream = function(stream, callback) {
           }
         }
 
+        pngInterlaceCount += 1;
         b = -1;
       }
     }
