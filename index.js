@@ -435,7 +435,6 @@ exports.parseStream = function(stream, callback) {
     var scanlineCount = 0;
 
     for(i = 0; i !== len; ++i) {
-      console.log('scanline count', scanlineCount);
       if(b === -1) {
         scanlineFilter  = data[i]
         tmp             = currentScanline
@@ -486,8 +485,14 @@ exports.parseStream = function(stream, callback) {
             )
         }
 
+      // TODO: Come back to me
+      // https://github.com/drj11/pypng/blob/1739028ef55c93ad41312a1d3b9133a720479094/code/png.py#L939-L957
       var adam7Pixels = [1, 1, 2, 4, 8, 16, 32];
       var scanlinePixels = adam7Pixels[scanlineCount];
+      console.log('scanlineCount', scanlineCount);
+      console.log('scanlinePixels', scanlinePixels);
+      console.log('pngBitDepth', pngBitDepth);
+      console.log('pngSamplesPerPixel', pngSamplesPerPixel);
       pngBytesPerScanline =
         scanlinePixels * Math.ceil(pngBitDepth * pngSamplesPerPixel / 8)
       currentScanline     = new Buffer(pngBytesPerScanline)
