@@ -489,16 +489,18 @@ exports.parseStream = function(stream, callback) {
       // https://github.com/drj11/pypng/blob/1739028ef55c93ad41312a1d3b9133a720479094/code/png.py#L939-L957
       var adam7Pixels = [1, 1, 2, 4, 8, 16, 32];
       var scanlinePixels = adam7Pixels[scanlineCount];
-      console.log('scanlineCount', scanlineCount);
-      console.log('scanlinePixels', scanlinePixels);
-      console.log('pngBitDepth', pngBitDepth);
-      console.log('pngSamplesPerPixel', pngSamplesPerPixel);
+      // console.log('pngBitDepth', pngBitDepth);
+      // console.log('pngSamplesPerPixel', pngSamplesPerPixel);
       pngBytesPerScanline =
         scanlinePixels * Math.ceil(pngBitDepth * pngSamplesPerPixel / 8)
       currentScanline     = new Buffer(pngBytesPerScanline)
+      console.log('scanlineCount', scanlineCount);
+      console.log('scanlinePixels', scanlinePixels);
+      console.log('b', b);
+      console.log('pngBytesPerScanline', pngBytesPerScanline);
 
       if(++b === pngBytesPerScanline) {
-        console.log('got one')
+        console.log('INTERPRETTING SCANLINE')
         /* One scanline too many? */
         if(p === pngPixels.length)
           return error(new Error("Too much pixel data! (Corrupt PNG?)"))
