@@ -1,7 +1,8 @@
-var fs     = require("fs"),
-    stream = require("stream"),
-    zlib   = require("zlib"),
-    HEADER = new Buffer("89504e470d0a1a0a", "hex")
+var fs      = require("fs"),
+    stream  = require("stream"),
+    zlib    = require("zlib"),
+    ndarray = require("ndarray"),
+    HEADER  = new Buffer("89504e470d0a1a0a", "hex")
 
 function ImageData(width, height, channels, data, trailer) {
   this.width    = width;
@@ -125,7 +126,7 @@ exports.parseStream = function(stream, callback) {
     if(inflate.destroy)
       inflate.destroy()
 
-    if(p !== pngPixels.length)
+    if(p !== pngPixels.data.length)
       return error(new Error("Too little pixel data! (Corrupt PNG?)"))
 
     return end()
@@ -210,7 +211,7 @@ exports.parseStream = function(stream, callback) {
                  * well wait until we're actually going to start filling the
                  * buffer in case of errors...) */
                 if(!pngPixels)
-                  pngPixels = new Buffer(pngWidth * pngHeight * idChannels);
+                  pngPixels = ndarray(new Buffer(pngWidth * pngHeight * idChannels), [pngWidth, pngHeight, idChannels]);
 
                 state = 5
                 break
@@ -485,7 +486,7 @@ exports.parseStream = function(stream, callback) {
 
       if(++b === pngBytesPerScanline) {
         /* One scanline too many? */
-        if(p === pngPixels.length)
+        if(p === pngPixels.data.length)
           return error(new Error("Too much pixel data! (Corrupt PNG?)"))
 
         /* We have now read a complete scanline, so unfilter it and write it
