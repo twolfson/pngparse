@@ -530,11 +530,9 @@ exports.parseStream = function(stream, callback) {
 
             case 2:
               pngPixels[z + 0] = pngSamples[0] * pngDepthMult;
-              pixelsWritten += 1
               pngPixels[z + 1] = pngSamples[1] * pngDepthMult;
-              pixelsWritten += 1
               pngPixels[z + 2] = pngSamples[2] * pngDepthMult;
-              pixelsWritten += 1
+              pixelsWritten += 3
               break;
 
             case 3:
@@ -549,55 +547,45 @@ exports.parseStream = function(stream, callback) {
 
                 case 2:
                   pngPixels[z + 0] = pngPalette[pngSamples[0] * 3];
-                  pixelsWritten += 1
                   pngPixels[z + 1] =
                     pngSamples[0] < pngAlphaEntries ?
                       pngAlpha[pngSamples[0]] :
                       255;
-                  pixelsWritten += 1
+                  pixelsWritten += 2
                   break;
 
                 case 3:
                   pngPixels[z + 0] = pngPalette[pngSamples[0] * 3 + 0];
-                  pixelsWritten += 1
                   pngPixels[z + 1] = pngPalette[pngSamples[0] * 3 + 1];
-                  pixelsWritten += 1
                   pngPixels[z + 2] = pngPalette[pngSamples[0] * 3 + 2];
-                  pixelsWritten += 1
+                  pixelsWritten += 3
                   break;
 
                 case 4:
                   pngPixels[z + 0] = pngPalette[pngSamples[0] * 3 + 0];
-                  pixelsWritten += 1
                   pngPixels[z + 1] = pngPalette[pngSamples[0] * 3 + 1];
-                  pixelsWritten += 1
                   pngPixels[z + 2] = pngPalette[pngSamples[0] * 3 + 2];
-                  pixelsWritten += 1
                   pngPixels[z + 3] =
                     pngSamples[0] < pngAlphaEntries ?
                       pngAlpha[pngSamples[0]] :
                       255;
-                  pixelsWritten += 1
+                  pixelsWritten += 4
                   break;
               }
               break;
 
             case 4:
               pngPixels[z + 0] = pngSamples[0] * pngDepthMult;
-              pixelsWritten += 1
               pngPixels[z + 1] = pngSamples[1] * pngDepthMult;
-              pixelsWritten += 1
+              pixelsWritten += 2
               break;
 
             case 6:
               pngPixels[z + 0] = pngSamples[0] * pngDepthMult;
-              pixelsWritten += 1
               pngPixels[z + 1] = pngSamples[1] * pngDepthMult;
-              pixelsWritten += 1
               pngPixels[z + 2] = pngSamples[2] * pngDepthMult;
-              pixelsWritten += 1
               pngPixels[z + 3] = pngSamples[3] * pngDepthMult;
-              pixelsWritten += 1
+              pixelsWritten += 4
               break;
           }
         }
