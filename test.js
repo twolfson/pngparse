@@ -267,37 +267,34 @@ describe("PNG", function() {
 
 // Images from http://www.libpng.org/pub/png/pngsuite.html
 describe('interlace', function () {
-    it("should correctly read an indexed color image", function(done) {
-      // return png.parseFile(path.join(__dirname, "data/s08n3p02.png"), function(err, id) {
-      return png.parseFile(path.join(__dirname, "data/s08i3p02.png"), function(err, id) {
+    it.skip("should correctly read an indexed image", function(done) {
+      return png.parseFile(path.join(__dirname, "data/s01i3p01.png"), function(err, id) {
         assert.isUndefined(err)
-        assert.equal(id.width, 8);
-        assert.equal(id.height, 8);
-        // assert.equal(id.getPixel(0, 0), 0x0000FFFF);
-        // assert.equal(id.channels, 3);
-        // assert.equal(id.data.length, 16 * 16 * 3);
-        // assert.equal(id.trailer.length, 0);
-
-        // var y = 16,
-        //     x
-
-        // while(y--) {
-        //   x = 16
-        //   while(x--)
-        //     if(x + y < 8)
-        //       assert.equal(id.getPixel(x, y), 0xFF0000FF)
-
-        //     else if(x + y < 16)
-        //       assert.equal(id.getPixel(x, y), 0x00FF00FF)
-
-        //     else if(x + y < 24)
-        //       assert.equal(id.getPixel(x, y), 0x0000FFFF)
-
-        //     else
-        //       assert.equal(id.getPixel(x, y), 0x000000FF)
-        // }
-
+        assert.equal(id.width, 1);
+        assert.equal(id.height, 1);
+        assert.equal(id.getPixel(0, 0), 0x0000FFFF);
         done()
+      })
+    })
+
+    it("should correctly read another indexed image", function(done) {
+      png.parseFile(path.join(__dirname, "data/s03i3p01.png"), function(err, interlacedImage) {
+        return png.parseFile(path.join(__dirname, "data/s03n3p01.png"), function(err, normalImage) {
+          assert.isUndefined(err)
+          assert.equal(interlacedImage.width, 3);
+          assert.equal(interlacedImage.height, 3);
+
+          var y = 3,
+              x
+
+          while(y--) {
+            x = 3
+            while(x--)
+              assert.equal(interlacedImage.getPixel(x, y), normalImage.getPixel(x, y))
+          }
+
+          done()
+        })
       })
     })
 });
