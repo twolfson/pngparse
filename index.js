@@ -75,6 +75,7 @@ exports.parseStream = function(stream, callback) {
       p                 = 0,
       pngPaletteEntries = 0,
       pngAlphaEntries   = 0,
+      pngInterlaceCount = 0,
       chunkLength, pngWidth, pngHeight, pngBitDepth, pngDepthMult,
       pngColorType, pngPixels, pngSamplesPerPixel, pngBytesPerPixel,
       pngBytesPerScanline, pngSamples, pngInterlaceMethod, currentScanline,
@@ -292,12 +293,7 @@ exports.parseStream = function(stream, callback) {
                 );
             }
 
-            pngBytesPerScanline = Math.ceil(
-              pngWidth * pngBitDepth * pngSamplesPerPixel / 8
-            )
-            pngSamples          = new Buffer(pngSamplesPerPixel)
-            currentScanline     = new Buffer(pngBytesPerScanline)
-            currentScanline.fill(0)
+            pngSamples = new Buffer(pngSamplesPerPixel)
           }
           break
 
@@ -432,7 +428,11 @@ exports.parseStream = function(stream, callback) {
     for(i = 0; i !== len; ++i) {
       if(b === -1) {
         scanlineFilter  = data[i]
+        pngBytesPerScanline = Math.ceil(
+          pngWidth * pngBitDepth * pngSamplesPerPixel / 8
+        )
         priorScanline   = currentScanline
+        // TODO: Restore optimization that reuses previous buffer as new buffer for normal images
         currentScanline = new Buffer(pngBytesPerScanline)
       }
 
