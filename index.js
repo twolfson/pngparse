@@ -427,9 +427,42 @@ exports.parseStream = function(stream, callback) {
 
     for(i = 0; i !== len; ++i) {
       if(b === -1) {
+        // Set up variables to default against normal images
+        var pixelCount = pngWidth
+
+        // If we are in an interlaced image, treat things differently
+        if (pngInterlaceMethod === 1) {
+          // Raw numbers taken from https://github.com/drj11/pypng/blob/1739028ef55c93ad41312a1d3b9133a720479094/code/png.py#L181-L187
+          var adam7 = [{
+            xstart: 0, ystart: 0,
+            xstep: 8, ystep: 8
+          }, {
+            xstart: 4, ystart: 0,
+            xstep: 8, ystep: 8
+          }, {
+            xstart: 0, ystart: 4,
+            xstep: 4, ystep: 8
+          }, {
+            xstart: 2, ystart: 0,
+            xstep: 4, ystep: 4
+          }, {
+            xstart: 0, ystart: 2,
+            xstep: 2, ystep: 4
+          }, {
+            xstart: 1, ystart: 0,
+            xstep: 2, ystep: 2
+          }, {
+            xstart: 0, ystart: 1,
+            xstep: 1, ystep: 2
+          }];
+          var adam7Step = adam7[pngInterlaceCount];
+          pixelCount = Math.floor((pngWidth - adam7Step.xstart) / adam7Step.xstep) *
+            Math.floor((pngHeight - adam7Step.ystart) / adam7Step.ystep) *
+        }
+
         scanlineFilter  = data[i]
         pngBytesPerScanline = Math.ceil(
-          pngWidth * pngBitDepth * pngSamplesPerPixel / 8
+          pixelCount * pngBitDepth * pngSamplesPerPixel / 8
         )
         priorScanline   = currentScanline
         // TODO: Restore optimization that reuses previous buffer as new buffer for normal images
