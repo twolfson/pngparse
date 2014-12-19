@@ -1,7 +1,8 @@
-var fs     = require("fs"),
-    stream = require("stream"),
-    zlib   = require("zlib"),
-    HEADER = new Buffer("89504e470d0a1a0a", "hex")
+var fs      = require("fs"),
+    stream  = require("stream"),
+    zlib    = require("zlib"),
+    ndarray = require("ndarray"),
+    HEADER  = new Buffer("89504e470d0a1a0a", "hex")
 
 function ImageData(width, height, channels, data, trailer) {
   this.width    = width;
@@ -72,9 +73,10 @@ exports.parseStream = function(stream, callback) {
       buf               = new Buffer(13),
       waiting           = 2,
       b                 = -1,
-      p                 = 0,
+      pixelsWritten                 = 0,
       pngPaletteEntries = 0,
       pngAlphaEntries   = 0,
+      scanlineIndex   = 0,
       chunkLength, pngWidth, pngHeight, pngBitDepth, pngDepthMult,
       pngColorType, pngPixels, pngSamplesPerPixel, pngBytesPerPixel,
       scanlineBytes, pngSamples, pngInterlaceMethod, currentScanline,
@@ -125,7 +127,7 @@ exports.parseStream = function(stream, callback) {
     if(inflate.destroy)
       inflate.destroy()
 
-    if(p !== pngPixels.length)
+    if(pixelsWritten !== pngPixels.length)
       return error(new Error("Too little pixel data! (Corrupt PNG?)"))
 
     return end()
@@ -425,11 +427,11 @@ exports.parseStream = function(stream, callback) {
         i, tmp, x, j, k
 
     for(i = 0; i !== len; ++i) {
-      if(byteIndex === -1) {
+      if(b === -1) {
         // Set up variables to default against normal images
         var pixelCount = pngWidth
         var xstart = 0
-        var ystart = scanlineCount
+        var ystart = scanlineIndex
         var xstep = 1
         var ystep = 1
 
@@ -458,7 +460,7 @@ exports.parseStream = function(stream, callback) {
             xstart: 0, ystart: 1,
             xstep: 1, ystep: 2
           }];
-          var adam7Step = adam7[scanlineCount];
+          var adam7Step = adam7[scanlineIndex];
           // TODO: Should we assert that we are under the scanline count of 8?
           pixelCount = Math.ceil((pngWidth - adam7Step.xstart) / adam7Step.xstep) *
             Math.ceil((pngHeight - adam7Step.ystart) / adam7Step.ystep)
@@ -521,14 +523,17 @@ exports.parseStream = function(stream, callback) {
             )
         }
 
-      if(++b === pngBytesPerScanline) {
+      var scanlinePixels = pngWidth
+      if(++b === scanlineBytes) {
         /* One scanline too many? */
-        if(p === pngPixels.length)
+        if(pixelsWritten === pngPixels.length)
           return error(new Error("Too much pixel data! (Corrupt PNG?)"))
 
         /* We have now read a complete scanline, so unfilter it and write it
          * into the pixel array. */
-        for(j = 0, x = 0; x !== pngWidth; ++x) {
+        var x = 0,
+            y = scanlineIndex;
+        for(j = 0, scanlinePixelIndex = 0; scanlinePixelIndex !== scanlinePixels; ++scanlinePixelIndex) {
           /* Read all of the samples into the sample buffer. */
           for(k = 0; k !== pngSamplesPerPixel; ++j, ++k)
             switch(pngBitDepth) {
@@ -556,15 +561,18 @@ exports.parseStream = function(stream, callback) {
             }
 
           /* Write the pixel based off of the samples so collected. */
+          var writeIndex = (x + y * pngWidth) * idChannels
           switch(pngColorType) {
             case 0:
-              pngPixels[p++] = pngSamples[0] * pngDepthMult;
+              pngPixels[writeIndex] = pngSamples[0] * pngDepthMult;
+              pixelsWritten += 1
               break;
 
             case 2:
-              pngPixels[p++] = pngSamples[0] * pngDepthMult;
-              pngPixels[p++] = pngSamples[1] * pngDepthMult;
-              pngPixels[p++] = pngSamples[2] * pngDepthMult;
+              pngPixels[writeIndex + 0] = pngSamples[0] * pngDepthMult;
+              pngPixels[writeIndex + 1] = pngSamples[1] * pngDepthMult;
+              pngPixels[writeIndex + 2] = pngSamples[2] * pngDepthMult;
+              pixelsWritten += 3
               break;
 
             case 3:
@@ -573,49 +581,63 @@ exports.parseStream = function(stream, callback) {
 
               switch(idChannels) {
                 case 1:
-                  pngPixels[p++] = pngPalette[pngSamples[0] * 3];
+                  pngPixels[writeIndex] = pngPalette[pngSamples[0] * 3];
+                  pixelsWritten += 1
                   break;
 
                 case 2:
-                  pngPixels[p++] = pngPalette[pngSamples[0] * 3];
-                  pngPixels[p++] =
+                  pngPixels[writeIndex + 0] = pngPalette[pngSamples[0] * 3];
+                  pngPixels[writeIndex + 1] =
                     pngSamples[0] < pngAlphaEntries ?
                       pngAlpha[pngSamples[0]] :
                       255;
+                  pixelsWritten += 2
                   break;
 
                 case 3:
-                  pngPixels[p++] = pngPalette[pngSamples[0] * 3 + 0];
-                  pngPixels[p++] = pngPalette[pngSamples[0] * 3 + 1];
-                  pngPixels[p++] = pngPalette[pngSamples[0] * 3 + 2];
+                  pngPixels[writeIndex + 0] = pngPalette[pngSamples[0] * 3 + 0];
+                  pngPixels[writeIndex + 1] = pngPalette[pngSamples[0] * 3 + 1];
+                  pngPixels[writeIndex + 2] = pngPalette[pngSamples[0] * 3 + 2];
+                  pixelsWritten += 3
                   break;
 
                 case 4:
-                  pngPixels[p++] = pngPalette[pngSamples[0] * 3 + 0];
-                  pngPixels[p++] = pngPalette[pngSamples[0] * 3 + 1];
-                  pngPixels[p++] = pngPalette[pngSamples[0] * 3 + 2];
-                  pngPixels[p++] =
+                  pngPixels[writeIndex + 0] = pngPalette[pngSamples[0] * 3 + 0];
+                  pngPixels[writeIndex + 1] = pngPalette[pngSamples[0] * 3 + 1];
+                  pngPixels[writeIndex + 2] = pngPalette[pngSamples[0] * 3 + 2];
+                  pngPixels[writeIndex + 3] =
                     pngSamples[0] < pngAlphaEntries ?
                       pngAlpha[pngSamples[0]] :
                       255;
+                  pixelsWritten += 4
                   break;
               }
               break;
 
             case 4:
-              pngPixels[p++] = pngSamples[0] * pngDepthMult;
-              pngPixels[p++] = pngSamples[1] * pngDepthMult;
+              pngPixels[writeIndex + 0] = pngSamples[0] * pngDepthMult;
+              pngPixels[writeIndex + 1] = pngSamples[1] * pngDepthMult;
+              pixelsWritten += 2
               break;
 
             case 6:
-              pngPixels[p++] = pngSamples[0] * pngDepthMult;
-              pngPixels[p++] = pngSamples[1] * pngDepthMult;
-              pngPixels[p++] = pngSamples[2] * pngDepthMult;
-              pngPixels[p++] = pngSamples[3] * pngDepthMult;
+              pngPixels[writeIndex + 0] = pngSamples[0] * pngDepthMult;
+              pngPixels[writeIndex + 1] = pngSamples[1] * pngDepthMult;
+              pngPixels[writeIndex + 2] = pngSamples[2] * pngDepthMult;
+              pngPixels[writeIndex + 3] = pngSamples[3] * pngDepthMult;
+              pixelsWritten += 4
               break;
+          }
+
+          x += xstep
+          if (x >= pngWidth) {
+            y += ystep
+            x = xstart
+            // TODO: Handle if y >= pngHeight (althought not on last row but maybe next check at start)
           }
         }
 
+        scanlineIndex += 1
         b = -1;
       }
     }
