@@ -278,23 +278,21 @@ describe('interlace', function () {
     })
 
     it("should correctly read another indexed image", function(done) {
-      png.parseFile(path.join(__dirname, "data/s03i3p01.png"), function(err, interlacedImage) {
-        return png.parseFile(path.join(__dirname, "data/s03n3p01.png"), function(err, normalImage) {
-          assert.isUndefined(err)
-          assert.equal(interlacedImage.width, 3);
-          assert.equal(interlacedImage.height, 3);
+      return png.parseFile(path.join(__dirname, "data/s03i3p01.png"), function(err, id) {
+        assert.isUndefined(err)
+        assert.equal(id.width, 3);
+        assert.equal(id.height, 3);
 
-          var y = 3,
-              x
-
-          while(y--) {
-            x = 3
-            while(x--)
-              assert.equal(interlacedImage.getPixel(x, y), normalImage.getPixel(x, y))
-          }
-
-          done()
-        })
+        assert.equal(id.getPixel(  0,   0), 16711935)
+        assert.equal(id.getPixel(  0,   1), 16711935)
+        assert.equal(id.getPixel(  0,   2), 16711935)
+        assert.equal(id.getPixel(  1,   0), 16711935)
+        assert.equal(id.getPixel(  1,   1), 4285989119)
+        assert.equal(id.getPixel(  1,   2), 16711935)
+        assert.equal(id.getPixel(  2,   0), 16711935)
+        assert.equal(id.getPixel(  2,   1), 16711935)
+        assert.equal(id.getPixel(  2,   2), 16711935)
+        done()
       })
     })
 });
