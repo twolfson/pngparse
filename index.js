@@ -550,6 +550,9 @@ exports.parseStream = function(stream, callback) {
                   pngPixels[p++] = pngPalette[pngSamples[0] * 3 + 0];
                   pngPixels[p++] = pngPalette[pngSamples[0] * 3 + 1];
                   pngPixels[p++] = pngPalette[pngSamples[0] * 3 + 2];
+                  console.log(pngPixels[p - 3]);
+                  console.log(pngPixels[p - 2]);
+                  console.log(pngPixels[p - 1]);
                   break;
 
                 case 4:
