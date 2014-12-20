@@ -1,4 +1,5 @@
 // Load in dependencies
+var fs = require('fs');
 var getPixels = require('get-pixels');
 var savePixels = require('save-pixels');
 
@@ -9,6 +10,6 @@ getPixels(__dirname + '/data/s08n3p02.png', function handlePixels (err, pixels) 
     throw err;
   }
 
-  // Otherwise, log the pixels
-  console.log(pixels.data);
+  // Otherwise, save the pixels
+  savePixels(pixels, 'png').pipe(fs.createWriteStream(__dirname + '/data/wat.png'));
 });
