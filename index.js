@@ -423,10 +423,6 @@ exports.parseStream = function(stream, callback) {
     if(!inflate.readable)
       return
 
-    console.log(data, data.length)
-    return
-
-
     var len = data.length,
         i, tmp, x, j, k
 
