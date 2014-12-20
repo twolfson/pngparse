@@ -439,6 +439,8 @@ exports.parseStream = function(stream, callback) {
 
         // If we are in an interlaced image, treat things differently
         if (pngInterlaceMethod === 1) {
+          // TODO: We made a bad assumption here about each of the scanlines being across the entire image
+          //   They are in their own 8x8 grid and must start/stop there.
           // Raw numbers taken from https://github.com/drj11/pypng/blob/1739028ef55c93ad41312a1d3b9133a720479094/code/png.py#L181-L187
           var adam7 = [{
             xstart: 0, ystart: 0,
