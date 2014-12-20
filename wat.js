@@ -11,5 +11,14 @@ getPixels(__dirname + '/data/s08n3p02.png', function handlePixels (err, pixels) 
   }
 
   // Otherwise, save the pixels
+  console.log(pixels.get(0, 0, 0));
+  console.log(pixels.get(0, 0, 1));
+  console.log(pixels.get(0, 0, 2));
+  console.log(pixels.get(0, 0, 3));
+  console.log(pixels.get(4, 4, 0));
+  console.log(pixels.get(4, 4, 1));
+  console.log(pixels.get(4, 4, 2));
+  console.log(pixels.get(4, 4, 3));
   savePixels(pixels, 'png').pipe(fs.createWriteStream(__dirname + '/data/wat.png'));
+  savePixels(pixels, 'jpeg').pipe(fs.createWriteStream(__dirname + '/data/wat.jpeg'));
 });
