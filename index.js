@@ -423,6 +423,7 @@ exports.parseStream = function(stream, callback) {
     if(!inflate.readable)
       return
 
+    console.log(data.toString('hex'))
     var len = data.length,
         i, tmp, x, j, k
 
