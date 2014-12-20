@@ -1,0 +1,6 @@
+An 8x8 has the following interlaced `IDAT`:
+
+```
+000000000010000000e0003e002a000000bc009c00a8002aa8002d78002ff8000000
+```
+
