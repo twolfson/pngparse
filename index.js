@@ -427,7 +427,7 @@ exports.parseStream = function(stream, callback) {
         i, tmp, x, j, k
 
     for(i = 0; i !== len; ++i) {
-      console.log(data[i], i, data, b)
+      console.log('i', i, 'decimal data at pt', data[i], 'data', data, 'b', b)
       if(b === -1) {
         // Set up variables to default against normal images
         var scanlinePixels = pngWidth
@@ -475,7 +475,7 @@ exports.parseStream = function(stream, callback) {
         scanlineBytes = Math.ceil(
           scanlinePixels * pngBitDepth * pngSamplesPerPixel / 8
         )
-        console.log(scanlineBytes)
+        console.log('scanlineIndex', scanlineIndex, 'scanlinePixels', scanlinePixels, 'scanlineBytes', scanlineBytes)
         // console.log(scanlinePixels);
         priorScanline   = currentScanline
         // TODO: Restore optimization that reuses previous buffer as new buffer for normal images
