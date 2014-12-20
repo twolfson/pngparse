@@ -278,7 +278,8 @@ describe('interlace', function () {
     })
 
     it("should correctly read another indexed image", function(done) {
-      // return png.parseFile(path.join(__dirname, "data/s03i3p01.png"), function(err, id) {
+      // TODO: Put back 5x5 assertion
+      // return png.parseFile(path.join(__dirname, "data/s05i3p02.png"), function(err, id) {
       return png.parseFile(path.join(__dirname, "data/s08i3p02.png"), function(err, id) {
         assert.isUndefined(err)
         assert.equal(id.width, 3);
